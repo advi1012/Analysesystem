@@ -1,30 +1,33 @@
-# Analysemodul
-<!-- comment -->
-Konzept:
+Analysemodul Konzept:
 
 Ein generisches Skript schreiben. Beliebige Beispieldatensätze können durch das Analysemodul verarbeitet werden. 
 Metadata csv/json als Teilanalyseergebnis
 
 GesamtanalyseFile mit einheitlicher Struktur, welches in JavaScript (JSON File) einmalig eingelesen wird.
 
-Ansatz für die Erstellung der Charts:
-
 Aufbereitung der Daten für die Visualisierung
 Array mit Charts ["BarChart", "LineChart"] für die Attribute. 
 
    Generische Analyse Pandas:
-
-   Relative Zahlen / Prozentzahlen (PieChart, Anteiliges Balkendiagramm)
-   Absolute nummerische Zahlen
-   Währungseinheit erkennen und favorisieren
-   Kategorische Attribute erkennen, die als Filterfunktion dienen. Kein Date-Time
-   Zahlenwerte (welche laut Pandas als Nummerisch ggf. Float? eingestuft werden) auf kategoriale Skalierung prüfen indem die Anzahl der Attributsausprägungen geprüft    wird (in Relation zur Datensatzgröße)
-   Kategoriale Were auf Nummerische Werte prüfen. Optimieren der Erkennung. Alles andere ist nummerisch und lässt sich aggregieren. Ausnahme Date eigener Datentyp,      aber kategorisch  
+      
+    Relative Zahlen / Prozentzahlen (PieChart, Anteiliges Balkendiagramm)
+    Absolute nummerische Zahlen
+    
+    Währungseinheit erkennen und favorisieren
+    
+    Kategorische Attribute erkennen, die als Filterfunktion dienen. Kein Date-Time
+    Zahlenwerte (welche laut Pandas als Nummerisch ggf. Float? eingestuft werden) auf kategoriale Skalierung prüfen indem die Anzahl der Attributsausprägungen geprüft     wird (in Relation zur Datensatzgröße)
+    
+    Kategoriale Were auf Nummerische Werte prüfen. Optimieren der Erkennung. Alles andere ist nummerisch und lässt sich aggregieren. Ausnahme Date eigener Datentyp,       aber kategorisch  
+   
    
    Zeitreihe erkennen und analysieren. 
     Attribute, die sich in ein bestimmtes Datumsformat umwandeln lassen. Datatype als Datetime setzen. Nicht Categorical 
+    
     API-Funktion pandas.api.types is_datetime64_any_dtype. Datetime.date nicht möglich zu erkennen.
+    
     Regex-Suche durchführen, um Dates zu erkennen und deren Format zu validieren.
+    
    Falls DateAttribut erkannt => Dieses resamplen (Aufteilung in Perioden), damit Schwankungen in der Nachfrage an den Stores (deutschlandweit) für den Kunden    
    ersichtlich werden.
    Skalierung unterjährig. Erfordert Aggregierung der Attributswerte, da tägliche Darstellung der Umsätze zu unübersichtlich.
