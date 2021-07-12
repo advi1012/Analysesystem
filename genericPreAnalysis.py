@@ -2,68 +2,6 @@ import numpy as np
 import pandas as pd
 
 
-"""
-Konzept:
-
-(Mehrere TeilanalyseFiles). Ein generisches Skript schreiben. 
-
-GesamtanalyseFile 
-mit einheitlicher Struktur festlegen, welches in JavaScript (JSON File) einmalig eingelesen wird.
-
-Ansatz für die Erstellung der Charts:
-Welche Visualisierungen kommen in Frage für die Daten.
-Array für BarCharts, LineCharts mit Attributnamen. 
-
-    Generische Analyse Pandas:
-
-    Relative Zahlen / Prozentzahlen (PieChart, Anteiliges Balkendiagramm)
-    Absolute Zahlen
-
-    Zeitreihe erkennen / Aufteilung in Perioden. Ziel Schwankungen in der Nachfrage an den Stores erkennen.
-    Skalierung unterjährig. Erfordert Aggregierung der Attributswerte, da tägliche Darstellung der Umsätze zu unübersichtlich.
-
-    Attribute Vorabauswahl / Ausschlusskriterium für Aggregierung: 
-        Datentyp muss nummerisch sein (int oder float). Methode is_numeric in Pandas
-    
-    Kandidatenkreis verkleinern: 
-        Dollar-Zeichen erkennen. Geldbetrag favorisieren. 
-        Anschließend wieder entfernen für Aggregierung. 
-
-    Wahl der Aggregierung: 
-        Sum, Count um Datensätze zu zählen: Histogramm. Kann auf metrisch skalierten Attributen angewendet werden, falls bins/Klassen gebildet werden.
-        Min, Max. Ebenfalls interessant für Abbildung. 
-        AVG
-
-    Durchführen. 
-
-    Attribute verwerfen, falls 
-
-
-
-    
-    1 Schritt weiter: Ausreißer speichern. Aggregierte Werte für die Umsätze etc. in den unterschiedlichen Zeitraumen in Klassen einteilen
-  
-    Kategoriale Attribute erkennen und so lassen. Als Dimension nutzen später. 
-    Wie gut kann die Software das? Categoriale Datentypen werden nicht erkannt am Beispieldatensatz.
-    Workaround:
-    Attributsausprägungen sind nicht zahlreich. Count auf den Attributen. (<100) 1 Mio. Datensätze. 
-
-    Metadata-Objekte sind einzelne Attributsfelder:
-    Extra DataFrame. Zeilen sind Attributsfelder, da diese nun die Objekte sind. 
-    Halten Informationen über die eigentlich gespeicherten Daten. z.B. Datentyp, is_numeric, is_relative_number (range 0 bis 1)
-    Halten Informationen bezüglich der späteren Verwendung, der Visualisierung der Daten: Diagrammtyp (Array), 
-    Darstellung an welcher Achse (besser dimension oder group für dc.js). 
-    Gruppe ist metrisch skaliert, lässt sich aggregieren. 
-    Dimension ist kategorial skaliert (unter anderem auch Date, Pandas Report zeigt dies)
-    Aufbereitung: 
-    Für Attributsfeld wird Array der möglichen Diagrammtypen gespeichert. 
-    Für die tatsächliche Erzeugung des Charts werden die Daten benötigt. Angabe des Attributsfelds muss im Dataframe des Datenanalyseergebnisses enthalten sein. Ggf. ATTRIBUTSFELD_AGG
-
-
-
-
-"""
-
 #Algorithmus
 
 
