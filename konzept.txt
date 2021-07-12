@@ -1,0 +1,68 @@
+# Analysemodul
+<!-- comment -->
+Konzept:
+
+Ein generisches Skript schreiben. Beliebige Beispieldatensätze können durch das Analysemodul verarbeitet werden. 
+Metadata csv/json als Teilanalyseergebnis
+
+GesamtanalyseFile mit einheitlicher Struktur, welches in JavaScript (JSON File) einmalig eingelesen wird.
+
+Ansatz für die Erstellung der Charts:
+
+Aufbereitung der Daten für die Visualisierung
+Array mit Charts ["BarChart", "LineChart"] für die Attribute. 
+
+   Generische Analyse Pandas:
+
+   Relative Zahlen / Prozentzahlen (PieChart, Anteiliges Balkendiagramm)
+   Absolute nummerische Zahlen
+   Währungseinheit erkennen und favorisieren
+   Kategorische Attribute erkennen, die als Filterfunktion dienen. Kein Date-Time
+   Zahlenwerte (welche laut Pandas als Nummerisch ggf. Float? eingestuft werden) auf kategoriale Skalierung prüfen indem die Anzahl der Attributsausprägungen geprüft    wird (in Relation zur Datensatzgröße)
+   Kategoriale Were auf Nummerische Werte prüfen. Optimieren der Erkennung. Alles andere ist nummerisch und lässt sich aggregieren. Ausnahme Date eigener Datentyp,      aber kategorisch  
+   
+   Zeitreihe erkennen und analysieren. 
+    Attribute, die sich in ein bestimmtes Datumsformat umwandeln lassen. Datatype als Datetime setzen. Nicht Categorical 
+    API-Funktion pandas.api.types is_datetime64_any_dtype. Datetime.date nicht möglich zu erkennen.
+    Regex-Suche durchführen, um Dates zu erkennen und deren Format zu validieren.
+   Falls DateAttribut erkannt => Dieses resamplen (Aufteilung in Perioden), damit Schwankungen in der Nachfrage an den Stores (deutschlandweit) für den Kunden    
+   ersichtlich werden.
+   Skalierung unterjährig. Erfordert Aggregierung der Attributswerte, da tägliche Darstellung der Umsätze zu unübersichtlich.
+
+   Attribute Vorabauswahl / Ausschlusskriterium für Aggregierung:
+        
+   Datentyp muss nummerisch sein (int oder float). Methode is_numeric in Pandas
+    
+   Kandidatenkreis verkleinern: 
+        Dollar-Zeichen 
+        Anschließend wieder entfernen für Aggregierung. 
+
+   Wahl der Aggregierung: 
+        Sum, Count um Datensätze zu zählen: Histogramm. Kann auf metrisch skalierten Attributen angewendet werden, falls bins/Klassen gebildet werden.
+        Min, Max. Ebenfalls interessant für Abbildung. 
+        AVG
+
+
+
+   Attribute verwerfen, falls 
+
+
+
+    
+   1 Schritt weiter: Ausreißer speichern. Aggregierte Werte für die Umsätze etc. in den unterschiedlichen Zeitraumen in Klassen einteilen
+  
+   Kategoriale Attribute bilden Dimension
+    
+   Workaround:
+    Attributsausprägungen sind nicht zahlreich in Relation zur Anzahl der Datensätze. Count auf den Attributen. (<100) 1 Mio. Datensätze. 
+
+   Metadata-Objekte sind einzelne Attributsfelder:
+    Halten Informationen über die eigentlich gespeicherten Daten. z.B. Datentyp, is_numeric, is_relative_number (range 0 bis 1)
+    Halten Informationen bezüglich der späteren Verwendung, der Visualisierung der Daten: Diagrammtyp (Array), 
+    Darstellung an welcher Achse (besser dimension oder group für dc.js). 
+    Gruppe ist metrisch skaliert, lässt sich aggregieren. 
+    Dimension ist kategorial skaliert (unter anderem auch Date, Pandas Report zeigt dies)
+    Aufbereitung: 
+    Für Attributsfeld wird Array der möglichen Diagrammtypen gespeichert. 
+    Für die tatsächliche Erzeugung des Charts werden die Daten benötigt. Angabe des Attributsfelds muss im Dataframe des Datenanalyseergebnisses enthalten sein. Ggf. ATTRIBUTSFELD_AGG
+
