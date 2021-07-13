@@ -1,15 +1,12 @@
-import numpy as np
-import pandas as pd
-
-
 #Algorithmus
-
 
 import numpy as np
 import pandas as pd
 import datetime as datetime
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from pandas.api.types import is_categorical_dtype as is_categorical
+import regex
+
 
 df = pd.read_csv('store_data_erweitert_Euro.csv', sep=';')
 #df = pd.read_csv('fz28_2021_04_edited.csv', sep=';')
@@ -34,8 +31,8 @@ dataList_is_relativeNumber = []
 dataList_is_date_regex = []
 dataList_is_date_pandas = []
 dataList_is_category = []
-
-column_names_metadata=['Datatype', 'is_numeric', 'is_relativeNumber','is_date', 'is_categoricalColumn']
+dataListCurrencyUnit = []
+column_names_metadata=['Datatype', 'is_numeric', 'is_relativeNumber','is_date', 'is_categoricalColumn', 'currencyUnit']
 
 
 
@@ -46,11 +43,12 @@ column_names_metadata=['Datatype', 'is_numeric', 'is_relativeNumber','is_date', 
 # result is the opposit of is_numeric
 def is_CategorialColumn(df, column_names, dataList_is_category):
     for idx, item in enumerate(column_names):
-        #print(df["Open"].dtype.name == "category") => All False
+        #print(df["Open"].dtype.name == "category") => All False        
         if(df[item].dtype == pd.CategoricalDtype):
-            # Cast Object to Subtype
-            df[item] = df[item].astype("category")
             dataList_is_category.append(True)
+            # Cast Object to subtype            
+            df[item] = df[item].astype("category")
+            
         else:
             dataList_is_category.append(False)
 
@@ -116,7 +114,7 @@ result = df.select_dtypes(include=[datetime.datetime])
 
 
 
-# Check if is_numeric. Drop missing values
+# Check if is_numeric. Do not consider missing values
 
 
 def isNumericColumn(df):
@@ -149,7 +147,7 @@ def isRelativeNumber(df, column_names,dataList_is_relativeNumber):
             dataList_is_relativeNumber.append(False)
 
 
-def isRelativeNumber_onlyFloat(df, column_names,dataList_is_relativeNumber, dataListDatatype):
+def isRelativeNumberOnlyFloat(df, column_names,dataList_is_relativeNumber, dataListDatatype):
     for itemColumn_Names, itemDatatype in zip(column_names, dataListDatatype):
         if itemDatatype != 'float64':
             dataList_is_relativeNumber.append(False)
@@ -161,10 +159,21 @@ def isRelativeNumber_onlyFloat(df, column_names,dataList_is_relativeNumber, data
             else:
                 dataList_is_relativeNumber.append(False)
 
-isRelativeNumber_onlyFloat(df, column_names, dataList_is_relativeNumber, dataListDatatype)
+isRelativeNumberOnlyFloat(df, column_names, dataList_is_relativeNumber, dataListDatatype)
+
+def getCurrencyUnit(df, column_names, dataListCurrencyUnit, curr="$€£"):
+    for idx, item in enumerate(column_names):
+        listOfCurrencys = regex.findall(r'\p{Sc}', str(df[item].loc[~df[item].isnull()].iloc[0]))
+        print(listOfCurrencys)
+        if len(listOfCurrencys) == 1:
+            dataListCurrencyUnit.append(listOfCurrencys[0])
+        elif not listOfCurrencys:
+            dataListCurrencyUnit.append("None")
+        else:
+            dataListCurrencyUnit.append(listOfCurrencys)
 
 
-
+getCurrencyUnit(df, column_names, dataListCurrencyUnit)
 
 
 dffinal = {column_names_metadata[0]: dataListDatatype,
@@ -172,21 +181,41 @@ dffinal = {column_names_metadata[0]: dataListDatatype,
         column_names_metadata[2]:dataList_is_relativeNumber,
         column_names_metadata[3]: dataList_is_date_regex,
         column_names_metadata[4]:dataList_is_category,
+        column_names_metadata[5]:dataListCurrencyUnit,
         'attributs':column_names}
 dffinal = pd.DataFrame(dffinal)
 
 
-# Zeitreihenanalyse
+# Time Series Analysis
 
 DateColumnRow = dffinal[dffinal["is_date"]==True]
 DateColumnNames = DateColumnRow.index.values.tolist()
 
+# Detection is optimized for categorical and datetime attributs.
+# Aggregation on every other attribut is useful. 
+
+# first analysis resamples date monthly
 
 
 
-# Ausreißer identifizieren
-# Kriterium für ermittelte Ausreißer: Einer davon muss MIN-Wert sein bzw. MAX-Wert. 
+
+
+
+
+# second analysis resamples date per quarter
+
+
+
+
+
+
+# Data detection is optimized for categorical and date columns. 
+# Apply Aggregation methods on every other column 
+
+
+# detect Outliers
 
 dffinal.set_index('attributs', inplace=True)
 
-dffinal.to_csv('Metadata_Rossmann.csv')
+print(dataListCurrencyUnit)
+dffinal.to_csv('Metadata_Rossmann.csv', encoding='utf-8-sig')
