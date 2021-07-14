@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-import datetime as datetime
+import datetime
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from pandas.api.types import is_categorical_dtype as is_categorical
 import regex
@@ -22,7 +22,7 @@ column_names = df.columns.tolist()
  Kategoriale Daten erkennen, die später als Dimension in dc.js verwendet werden können. Charts nutzen die Dimension für das Filtern
  Nummerische Daten, die sich aggregieren lassen werden innerhalb der group Methode verwendet für die eine besimmte Aggregierung gewählt wird. 
  Aus der Gruppe werden die Daten gelesen und dargestellt
- 
+ Clientseitig: Wahl der Charts. Zuweisung der Information welches Attribut an welche Achse
 
 """
 dataListDatatype = []
@@ -34,7 +34,7 @@ dataList_is_category = []
 dataListCurrencyUnit = []
 column_names_metadata=['Datatype', 'is_numeric', 'is_relativeNumber','is_date', 'is_categoricalColumn', 'currencyUnit']
 
-
+print(df["Date"].dtype == datetime.date)
 
 # Check Categorical data. Assumption: Dates (can be displayed as dimension in charts) aswell as alphanumerical data.
 # In Pandas Report: State, PromoInterval, Promo/2, Assortment, StoreType, SchoolHoliday, Open, Date
@@ -46,7 +46,7 @@ def is_CategorialColumn(df, column_names, dataList_is_category):
         #print(df["Open"].dtype.name == "category") => All False        
         if(df[item].dtype == pd.CategoricalDtype):
             dataList_is_category.append(True)
-            # Cast Object to subtype            
+            # Cast Object to subtype         
             df[item] = df[item].astype("category")
             
         else:
@@ -175,6 +175,7 @@ def getCurrencyUnit(df, column_names, dataListCurrencyUnit, curr="$€£"):
 
 getCurrencyUnit(df, column_names, dataListCurrencyUnit)
 
+# Use dataList_is_date_regex for valid dates. 
 
 dffinal = {column_names_metadata[0]: dataListDatatype,
         column_names_metadata[1]: dataList_is_numeric,
@@ -188,34 +189,69 @@ dffinal = pd.DataFrame(dffinal)
 
 # Time Series Analysis
 
-DateColumnRow = dffinal[dffinal["is_date"]==True]
-DateColumnNames = DateColumnRow.index.values.tolist()
+dateColumnRow = dffinal[dffinal["is_date"]==True]
+dateColumnNames = dateColumnRow.index.values.tolist()
 
+# Allow only one dateColumn 
+
+if not dateColumnNames:
+    print("No DateColumn detected. Can not perform time Series Analysis")
+else: 
+    dateColumnName = dateColumnNames[0]
 # Detection is optimized for categorical and datetime attributs.
-# Aggregation on every other attribut is useful. 
+# Apply Aggregation methods on every other column  Sum, Average (Assumption)
+# As wel as columns with currency Unit
+
+    candidatsAggregationRow = dffinal[(dffinal["is_categoricalColumn"]==False) & (dffinal["is_date"] == False) | (dffinal["currencyUnit"] != "None")]
+    candidatsAggregationNames = candidatsAggregationRow.index.values.tolist()
+
+    dfAggregation = df[candidatsAggregationNames]
 
 # first analysis resamples date monthly
+# must set dateColumn as index. DateColumn must be of Type 
+    aggregation_spec_sum_avg = {s:[np.sum, np.avg] for s in candidatsAggregationNames} 
+    aggregation_spec_sum = {s+"SUM":"sum" for s in candidatsAggregationNames} 
+    aggregation_spec_avg = {s+"AVG":"avg" for s in candidatsAggregationNames}  
 
+    df[dateColumnName] = pd.to_datetime(df[dateColumnName])
+    df.set_index(dateColumnName, inplace =True)
 
+    resampledDataFrameMonthly = df.resample('M').agg(aggregation_spec_sum_avg)
 
+# detect Outliers. IQR formula
+    
 
+    for item in candidatsAggregationNames:
+
+        q1Sum, q3Sum = resampledDataFrameMonthly[item+"_SUM"].quantile([0.25, 0.75])
+
+        iqr_AllStores_grp = q3Sum - q1Sum
+
+        lower_bound = q1Sum - (1.5*iqr_AllStores_grp)
+
+        upper_bound = q3Sum + (1.5*iqr_AllStores_grp)
+
+        resampledDataFrameMonthly[item+"_SUM_Ausreiser"] = ((resampledDataFrameMonthly[item] > upper_bound) | (resampledDataFrameMonthly[item] < lower_bound)).astype('int')
+
+        q1Avg, q3Avg = resampledDataFrameMonthly[item+"_AVG"].quantile([0.25, 0.75])
+
+        iqr_AllStores_grp = q3Avg - q1Avg
+
+        lower_bound = q1Avg - (1.5*iqr_AllStores_grp)
+
+        upper_bound = q3Avg + (1.5*iqr_AllStores_grp)
+
+        resampledDataFrameMonthly[item+"_AVG_Ausreiser"] = ((resampledDataFrameMonthly[item] > upper_bound) | (resampledDataFrameMonthly[item] < lower_bound)).astype('int')
 
 
 
 # second analysis resamples date per quarter
 
+    resampledDataFrameQuarters = df.resample('Q').agg(aggregation_spec_sum_avg)
 
-
-
-
-
-# Data detection is optimized for categorical and date columns. 
-# Apply Aggregation methods on every other column 
 
 
 # detect Outliers
 
 dffinal.set_index('attributs', inplace=True)
-
-print(dataListCurrencyUnit)
 dffinal.to_csv('Metadata_Rossmann.csv', encoding='utf-8-sig')
