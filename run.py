@@ -4,10 +4,17 @@ import numpy as np
 import pandas as pd
 import datetime
 import json
+import sys
 from genericPreAnalysis import GenericPreAnalysis
+from timeseriesAnalysis import preparetimeSeriesAnalysis
+from timeseriesAnalysis import resampleByPeriodAll
+from timeseriesAnalysis import resampleByPeriodOnce
+from enrich import Enrich
+
 
 #Read Data
-df = pd.read_csv('store_data_erweitert_Euro.csv', sep=';')
+input = "input_Rossmann_data"
+df = pd.read_csv(input+'.csv', sep=';')
 #df = pd.read_csv('fz28_2021_04_edited.csv', sep=';')
 column_names = df.columns.tolist()
 
@@ -29,7 +36,8 @@ dataList_is_date_regex = []
 dataListDateFormat = []
 dataList_is_category = []
 dataListCurrencyUnit = []
-column_names_metadata=['Datatype', 'is_numeric', 'is_relativeNumber','is_date', 'DateFormat','is_categoricalColumn', 'currencyUnit']
+dataListCoordinatesCandidat = []
+column_names_metadata=['Datatype', 'is_numeric', 'is_relativeNumber','is_date', 'DateFormat','is_categoricalColumn', 'currencyUnit', 'coordinatesCandidat']
 
 
 genericPreAnalysis = GenericPreAnalysis(df)
@@ -74,9 +82,11 @@ dfevaluation = {"is_mistake_YMD": dataList_is_mistake_pandas_to_datetime_YMD,
 dfevaluation = pd.DataFrame(dfevaluation)
 dfevaluation.set_index("attributs", inplace =True)
 
+dfevaluation.to_csv('./final/evaluation_Pandas_Rossmann.csv', encoding='utf-8-sig')
+
 # Use dataList_is_date_regex for valid dates. 
 
-dffinal = {column_names_metadata[0]: dataListDatatype,
+dffinalmetadata = {column_names_metadata[0]: dataListDatatype,
         column_names_metadata[1]: dataList_is_numeric,
         column_names_metadata[2]:dataList_is_relativeNumber,
         column_names_metadata[3]: dataList_is_date_regex,
@@ -84,9 +94,26 @@ dffinal = {column_names_metadata[0]: dataListDatatype,
         column_names_metadata[5]:dataList_is_category,
         column_names_metadata[6]:dataListCurrencyUnit,
         'attributs':column_names}
-dffinal = pd.DataFrame(dffinal)
+dffinalmetadata = pd.DataFrame(dffinalmetadata)
+dffinalmetadata.set_index("attributs", inplace =True)
 
-dffinal.to_csv('Metadata_Rossmann.csv', encoding='utf-8-sig')
-metadatajson = dffinal.to_json('Metadata_Rossmann.json', orient="index")
-parsed  = json.loads(metadatajson)
-print(json.dumps(parsed, indent=4))
+enricher = Enrich()
+dffinalmetadata = enricher.enrich(dffinalmetadata)
+
+output = input.replace('input', 'output')
+print(output)
+dffinalmetadata.to_csv('./final/'+output+'_Metadata'+'.csv', encoding='utf-8-sig')
+dffinalmetadata.to_json('./final/'+output+'_Metadata'+'.json', orient="index")
+
+aggregation_spec_sum_avg, candidatsAggregationNames = preparetimeSeriesAnalysis(dffinalmetadata, df)
+
+if not aggregation_spec_sum_avg or not candidatsAggregationNames:
+	sys.exit("No timeSeries analysis possible")
+else:
+	resampledDataFramePeriodQ = resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df, period = 'Q')
+	resampledDataFramePeriodM = resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df, period = 'M')
+
+	resampledDataFramePeriodQ.to_csv('./final/timeseries/'+output+'periodQ.csv', encoding='utf-8-sig')
+	resampledDataFramePeriodM.to_csv('./final/timeseries/'+output+'periodM.csv', encoding='utf-8-sig')
+	resampledDataFramePeriodQ.to_json('./final/timeseries/'+output+'periodQ.json', orient="index")
+	resampledDataFramePeriodM.to_json('./final/timeseries/'+output+'periodM.json', orient="index")

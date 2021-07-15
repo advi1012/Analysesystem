@@ -16,16 +16,19 @@ class GenericPreAnalysis:
 		self.dataframe = dataframe
 
 	# result is the opposit of is_numeric
+	# Todo: Heuristik. https://stackoverflow.com/questions/35826912/what-is-a-good-heuristic-to-detect-if-a-column-in-a-pandas-dataframe-is-categori
 	def is_CategorialColumn(self, column_names, dataList_is_category, dataList_is_date_regex, dataListCurrencyUnit):
-		for itemColumn_Names, itemDateRegex, itemCurrency in enumerate(zip(column_names, dataList_is_date_regex, dataListCurrencyUnit)):
+		for itemColumn_Names, itemDateRegex, itemCurrency in zip(column_names, dataList_is_date_regex, dataListCurrencyUnit):
 			#print(self.dataframe["Open"].dtype.name == "category") => All False		
 			if self.dataframe[itemColumn_Names].dtype == pd.CategoricalDtype:
 				dataList_is_category.append(True)
 				if itemDateRegex == True:
-					# Todo: Look for valid datetime datatypes to cast. Required for resampling a TimeSeries
+					# Method pd.to_datetime returns datetime64[ns]. Required for resampling a TimeSeries
+					self.dataframe[itemColumn_Names] = pd.to_datetime(self.dataframe[itemColumn_Names])
 					continue
 				if itemCurrency == True:
 					self.dataframe[itemColumn_Names] = self.dataframe[itemColumn_Names].astype("int64")
+					continue
 				# Cast Object to subtype		 
 				self.dataframe[itemColumn_Names] = self.dataframe[itemColumn_Names].astype("category")
 			else:
@@ -60,7 +63,7 @@ class GenericPreAnalysis:
 		return Series
 	
 	def setDateFormat(self, dataList_is_date_regex, dataList_is_date_regex_YMD, dataList_is_date_regex_MDY, dataList_is_date_regex_DMY, dataListDateFormat):
-		for index, (YMD, MDY, DMY) in enumerate(zip(dataList_is_date_regex_YMD, dataList_is_date_regex_MDY, dataList_is_date_regex_DMY)):
+		for YMD, MDY, DMY in zip(dataList_is_date_regex_YMD, dataList_is_date_regex_MDY, dataList_is_date_regex_DMY):
 			if YMD == True:
 				dataListDateFormat.append('YMD')
 				dataList_is_date_regex.append(True)
@@ -108,8 +111,10 @@ class GenericPreAnalysis:
 			if self.dataframe[item].isnull().values.any():
 				new_df = self.dataframe[self.dataframe[item].notna()]
 		if self.dataframe[item].isnull().values.any():
+			print(self.dataframe[item])
 			return new_df.apply(lambda s: pd.to_numeric(s,errors='coerce').notnull().all())
 		else:
+			# to_numeric can not convert columns from Datatype float64
 			return self.dataframe.apply(lambda s: pd.to_numeric(s,errors='coerce').notnull().all())
 
 	def setDatatype(self,column_names, dataListDatatype):

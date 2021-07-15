@@ -1,0 +1,191 @@
+{
+    "Store": {
+        "Datatype": "int64",
+        "is_numeric": true,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": false,
+        "currencyUnit": "None"
+    },
+    "DayOfWeek": {
+        "Datatype": "int64",
+        "is_numeric": true,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": false,
+        "currencyUnit": "None"
+    },
+    "Date": {
+        "Datatype": "object",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": true,
+        "DateFormat": "YMD",
+        "is_categoricalColumn": true,
+        "currencyUnit": "None"
+    },
+    "Sales": {
+        "Datatype": "object",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": true,
+        "currencyUnit": "\u20ac"
+    },
+    "Customers": {
+        "Datatype": "int64",
+        "is_numeric": true,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": false,
+        "currencyUnit": "None"
+    },
+    "Open": {
+        "Datatype": "int64",
+        "is_numeric": true,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": false,
+        "currencyUnit": "None"
+    },
+    "Promo": {
+        "Datatype": "int64",
+        "is_numeric": true,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": false,
+        "currencyUnit": "None"
+    },
+    "StateHoliday": {
+        "Datatype": "object",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": true,
+        "currencyUnit": "None"
+    },
+    "SchoolHoliday": {
+        "Datatype": "int64",
+        "is_numeric": true,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": false,
+        "currencyUnit": "None"
+    },
+    "StoreType": {
+        "Datatype": "object",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": true,
+        "currencyUnit": "None"
+    },
+    "Assortment": {
+        "Datatype": "object",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": true,
+        "currencyUnit": "None"
+    },
+    "CompetitionDistance": {
+        "Datatype": "float64",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": false,
+        "currencyUnit": "None"
+    },
+    "CompetitionOpenSinceMonth": {
+        "Datatype": "float64",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": false,
+        "currencyUnit": "None"
+    },
+    "CompetitionOpenSinceYear": {
+        "Datatype": "float64",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": false,
+        "currencyUnit": "None"
+    },
+    "Promo2": {
+        "Datatype": "int64",
+        "is_numeric": true,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": false,
+        "currencyUnit": "None"
+    },
+    "Promo2SinceWeek": {
+        "Datatype": "float64",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": false,
+        "currencyUnit": "None"
+    },
+    "Promo2SinceYear": {
+        "Datatype": "float64",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": false,
+        "currencyUnit": "None"
+    },
+    "PromoInterval": {
+        "Datatype": "object",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": true,
+        "currencyUnit": "None"
+    },
+    "State": {
+        "Datatype": "object",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": true,
+        "currencyUnit": "None"
+    },
+    "Latitude": {
+        "Datatype": "object",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": true,
+        "currencyUnit": "None"
+    },
+    "Longitude": {
+        "Datatype": "object",
+        "is_numeric": false,
+        "is_relativeNumber": false,
+        "is_date": false,
+        "DateFormat": "None",
+        "is_categoricalColumn": true,
+        "currencyUnit": "None"
+    }
+}
