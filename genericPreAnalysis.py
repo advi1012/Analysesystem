@@ -7,6 +7,7 @@ import json
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from pandas.api.types import is_categorical_dtype as is_categorical
 import regex
+import re
 
 
 
@@ -17,7 +18,7 @@ class GenericPreAnalysis:
 
 	# result is the opposit of is_numeric
 	# Todo: Heuristik. https://stackoverflow.com/questions/35826912/what-is-a-good-heuristic-to-detect-if-a-column-in-a-pandas-dataframe-is-categori
-	def is_CategorialColumn(self, column_names, dataList_is_category, dataList_is_date_regex, dataListCurrencyUnit):
+	def is_CategorialColumn(self, listOfCurrencys, column_names, dataList_is_category, dataList_is_date_regex, dataListCurrencyUnit):
 		for itemColumn_Names, itemDateRegex, itemCurrency in zip(column_names, dataList_is_date_regex, dataListCurrencyUnit):
 			#print(self.dataframe["Open"].dtype.name == "category") => All False		
 			if self.dataframe[itemColumn_Names].dtype == pd.CategoricalDtype:
@@ -25,14 +26,24 @@ class GenericPreAnalysis:
 				if itemDateRegex == True:
 					# Method pd.to_datetime returns datetime64[ns]. Required for resampling a TimeSeries
 					self.dataframe[itemColumn_Names] = pd.to_datetime(self.dataframe[itemColumn_Names])
+					#if itemColumn_Names == "Date" and self.dataframe[itemColumn_Names].dtype == "datetime64[ns]":
+					#	print("HiDate")
 					continue
-				if itemCurrency == True:
-					self.dataframe[itemColumn_Names] = self.dataframe[itemColumn_Names].astype("int64")
+				if itemCurrency in listOfCurrencys:
+
+					
+					#remove everything except the number
+					#self.dataframe[itemColumn_Names] = self.dataframe[itemColumn_Names].str.replace(r'[^\d.,]+', '')
+					self.dataframe[itemColumn_Names] = self.dataframe[itemColumn_Names].apply(self.trimString)
+					self.dataframe[itemColumn_Names] = self.dataframe[itemColumn_Names].astype("int64")						
 					continue
 				# Cast Object to subtype		 
 				self.dataframe[itemColumn_Names] = self.dataframe[itemColumn_Names].astype("category")
 			else:
 				dataList_is_category.append(False)
+
+	def trimString(self, s):
+		return re.compile(r'[^\d.,]+').sub('', s)
 
 	def isCategoricalColumnAPIFunction(self,df):
 
@@ -146,14 +157,18 @@ class GenericPreAnalysis:
 
 
 	def setCurrencyUnit(self, column_names, dataListCurrencyUnit, curr="$€£"):
+		resultListOfCurrencys = []
 		for idx, item in enumerate(column_names):
 			listOfCurrencys = regex.findall(r'\p{Sc}', str(self.dataframe[item].loc[~self.dataframe[item].isnull()].iloc[0]))
 			if len(listOfCurrencys) == 1:
 				dataListCurrencyUnit.append(listOfCurrencys[0])
+				resultListOfCurrencys = listOfCurrencys
 			elif not listOfCurrencys:
 				dataListCurrencyUnit.append("None")
 			else:
 				dataListCurrencyUnit.append(listOfCurrencys)
+				resultListOfCurrencys = listOfCurrencys
+		return resultListOfCurrencys
 
 
 

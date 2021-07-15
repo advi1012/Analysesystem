@@ -2,7 +2,7 @@
 Store,True,False,False
 DayOfWeek,True,False,False
 Date,False,False,False
-Sales,False,False,False
+Sales,True,False,False
 Customers,True,False,False
 Open,True,False,False
 Promo,True,False,False

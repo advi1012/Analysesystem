@@ -20,6 +20,7 @@ column_names = df.columns.tolist()
 
 
 
+
 """
  First collect data with list. Eather List-of-Lists or lists-of-dict. Create DataFrame when ready. Due to computationally intensitivity.
  Aufbereitung für dc.js: Welche Daten an welche Achse packen (dimension,group): 
@@ -45,24 +46,30 @@ genericPreAnalysis = GenericPreAnalysis(df)
 # Check Categorical data. Assumption: Dates (can be displayed as dimension in charts) aswell as alphanumerical data.
 # In Pandas Report: State, PromoInterval, Promo/2, Assortment, StoreType, SchoolHoliday, Open, Date
 
-genericPreAnalysis.setCurrencyUnit(column_names, dataListCurrencyUnit)
+listOfCurrencys = genericPreAnalysis.setCurrencyUnit(column_names, dataListCurrencyUnit)
 dataList_is_date_regex_YMD = genericPreAnalysis.isDateColumnOnlyColumnsWithRegex(format='%Y-%m-%d')
 dataList_is_date_regex_MDY = genericPreAnalysis.isDateColumnOnlyColumnsWithRegex(format='%m-%d-%Y')
 dataList_is_date_regex_DMY = genericPreAnalysis.isDateColumnOnlyColumnsWithRegex(format='%d-%m-%Y')
 
 genericPreAnalysis.setDateFormat(dataList_is_date_regex, dataList_is_date_regex_YMD, dataList_is_date_regex_MDY, dataList_is_date_regex_DMY, dataListDateFormat)
 
-dataList_is_numeric = genericPreAnalysis.isNumericColumn(column_names)
 
-genericPreAnalysis.setDatatype(column_names, dataListDatatype)
-
-#Check relative Number must be between 0 and 1
-genericPreAnalysis.isRelativeNumberOnlyFloat(column_names, dataList_is_relativeNumber, dataListDatatype)
 
 # Check Categorical data. Assumption: Dates (can be displayed as dimension in charts) aswell as alphanumerical data.
 # In Pandas Report: State, PromoInterval, Promo/2, Assortment, StoreType, SchoolHoliday, Open, Date
 
-genericPreAnalysis.is_CategorialColumn(column_names, dataList_is_category, dataList_is_date_regex, dataListCurrencyUnit)
+genericPreAnalysis.is_CategorialColumn(listOfCurrencys, column_names, dataList_is_category, dataList_is_date_regex, dataListCurrencyUnit)
+
+
+
+dataList_is_numeric = genericPreAnalysis.isNumericColumn(column_names)
+
+
+# Run set Datatype after function call is_CategorialColumn
+genericPreAnalysis.setDatatype(column_names, dataListDatatype)
+
+#Check relative Number must be between 0 and 1
+genericPreAnalysis.isRelativeNumberOnlyFloat(column_names, dataList_is_relativeNumber, dataListDatatype)
 
 # for evaluation of Pandas Software
 dataList_is_date_pandas_YMD = genericPreAnalysis.isDateColumn(format='%Y-%m-%d').tolist()
@@ -112,6 +119,7 @@ if not aggregation_spec_sum_avg or not candidatsAggregationNames:
 else:
 	resampledDataFramePeriodQ = resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df, period = 'Q')
 	resampledDataFramePeriodM = resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df, period = 'M')
+
 
 	resampledDataFramePeriodQ.to_csv('./final/timeseries/'+output+'periodQ.csv', encoding='utf-8-sig')
 	resampledDataFramePeriodM.to_csv('./final/timeseries/'+output+'periodM.csv', encoding='utf-8-sig')
