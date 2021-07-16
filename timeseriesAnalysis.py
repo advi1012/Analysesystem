@@ -39,17 +39,17 @@ def preparetimeSeriesAnalysis(dffinalmetadata, df):
 
 def resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df, period="Q"):
 
-
     resampledDataFramePeriod = df.resample(period).agg(aggregation_spec_sum_avg)
 
     print(resampledDataFramePeriod)
+    print(resampledDataFramePeriod.columns)
 
 # detect Outliers. IQR formula
 
 
     for item in candidatsAggregationNames:
         #Sum items
-        q1Sum, q3Sum = resampledDataFramePeriod[item+"_SUM"].quantile([0.25, 0.75])
+        q1Sum, q3Sum = resampledDataFramePeriod[item,'sum'].quantile([0.25, 0.75])
 
         iqr_AllStores_grp = q3Sum - q1Sum
 
@@ -57,10 +57,10 @@ def resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df,
 
         upper_bound = q3Sum + (1.5*iqr_AllStores_grp)
 
-        resampledDataFramePeriod[item+"_SUM_Ausreiser"] = ((resampledDataFramePeriod[item] > upper_bound) | (resampledDataFramePeriod[item] < lower_bound)).astype('int')
+        resampledDataFramePeriod[item,'sum_Ausreiser'] = ((resampledDataFramePeriod[item,'sum'] > upper_bound) | (resampledDataFramePeriod[item,'sum'] < lower_bound)).astype('int')
 
         #AVG items
-        q1Avg, q3Avg = resampledDataFramePeriod[item+"_AVG"].quantile([0.25, 0.75])
+        q1Avg, q3Avg = resampledDataFramePeriod[item,'average'].quantile([0.25, 0.75])
 
         iqr_AllStores_grp = q3Avg - q1Avg
 
@@ -68,13 +68,13 @@ def resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df,
 
         upper_bound = q3Avg + (1.5*iqr_AllStores_grp)
 
-        resampledDataFramePeriod[item+"_AVG_Ausreiser"] = ((resampledDataFramePeriod[item] > upper_bound) | (resampledDataFramePeriod[item] < lower_bound)).astype('int')
+        resampledDataFramePeriod[item,'average_Ausreiser'] = ((resampledDataFramePeriod[item,'average'] > upper_bound) | (resampledDataFramePeriod[item,'average'] < lower_bound)).astype('int')
 
 
 
-    resampledDataFramePeriod.to_csv('Zeitreihe_'+period+'.csv', encoding='utf-8-sig')
-    result = resampledDataFramePeriod.to_json('Zeitreihe_'+period+'.json',orient="index")
-    print(result)
+    # resampledDataFramePeriod.to_csv('Zeitreihe_'+period+'.csv', encoding='utf-8-sig')
+    # result = resampledDataFramePeriod.to_json('Zeitreihe_'+period+'.json',orient="index")
+    # print(result)
     return resampledDataFramePeriod
 
 def resampleByPeriodOnce(resampledDataFramePeriod, period="Q" ):

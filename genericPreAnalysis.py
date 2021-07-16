@@ -22,12 +22,12 @@ class GenericPreAnalysis:
 		for itemColumn_Names, itemDateRegex, itemCurrency in zip(column_names, dataList_is_date_regex, dataListCurrencyUnit):
 			#print(self.dataframe["Open"].dtype.name == "category") => All False		
 			if self.dataframe[itemColumn_Names].dtype == pd.CategoricalDtype:
-				dataList_is_category.append(True)
 				if itemDateRegex == True:
 					# Method pd.to_datetime returns datetime64[ns]. Required for resampling a TimeSeries
 					self.dataframe[itemColumn_Names] = pd.to_datetime(self.dataframe[itemColumn_Names])
 					#if itemColumn_Names == "Date" and self.dataframe[itemColumn_Names].dtype == "datetime64[ns]":
 					#	print("HiDate")
+					dataList_is_category.append(True)
 					continue
 				if itemCurrency in listOfCurrencys:
 
@@ -35,8 +35,11 @@ class GenericPreAnalysis:
 					#remove everything except the number
 					#self.dataframe[itemColumn_Names] = self.dataframe[itemColumn_Names].str.replace(r'[^\d.,]+', '')
 					self.dataframe[itemColumn_Names] = self.dataframe[itemColumn_Names].apply(self.trimString)
-					self.dataframe[itemColumn_Names] = self.dataframe[itemColumn_Names].astype("int64")						
+					self.dataframe[itemColumn_Names] = self.dataframe[itemColumn_Names].astype("int64")
+					dataList_is_category.append(False)					
 					continue
+				#Set Categorical Column True
+				dataList_is_category.append(True)
 				# Cast Object to subtype		 
 				self.dataframe[itemColumn_Names] = self.dataframe[itemColumn_Names].astype("category")
 			else:
@@ -122,11 +125,17 @@ class GenericPreAnalysis:
 			if self.dataframe[item].isnull().values.any():
 				new_df = self.dataframe[self.dataframe[item].notna()]
 		if self.dataframe[item].isnull().values.any():
-			print(self.dataframe[item])
 			return new_df.apply(lambda s: pd.to_numeric(s,errors='coerce').notnull().all())
 		else:
 			# to_numeric can not convert columns from Datatype float64
 			return self.dataframe.apply(lambda s: pd.to_numeric(s,errors='coerce').notnull().all())
+
+	"""
+	def isCoordinateCandidate(self, column_names):
+		for idx, item in enumerate(column_names):
+			if ',' in 
+	"""
+
 
 	def setDatatype(self,column_names, dataListDatatype):
 		for idx, item in enumerate(column_names):

@@ -2,7 +2,7 @@
 Store,int64,True,False,False,None,False,None,group
 DayOfWeek,int64,True,False,False,None,False,None,group
 Date,datetime64[ns],True,False,True,YMD,True,None,dimension
-Sales,int64,True,False,False,None,True,€,dimension
+Sales,int64,True,False,False,None,False,€,group
 Customers,int64,True,False,False,None,False,None,group
 Open,int64,True,False,False,None,False,None,group
 Promo,int64,True,False,False,None,False,None,group

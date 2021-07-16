@@ -64,6 +64,8 @@ genericPreAnalysis.is_CategorialColumn(listOfCurrencys, column_names, dataList_i
 
 dataList_is_numeric = genericPreAnalysis.isNumericColumn(column_names)
 
+# Check coordinates
+
 
 # Run set Datatype after function call is_CategorialColumn
 genericPreAnalysis.setDatatype(column_names, dataListDatatype)
@@ -114,6 +116,7 @@ dffinalmetadata.to_json('./final/'+output+'_Metadata'+'.json', orient="index")
 
 aggregation_spec_sum_avg, candidatsAggregationNames = preparetimeSeriesAnalysis(dffinalmetadata, df)
 
+
 if not aggregation_spec_sum_avg or not candidatsAggregationNames:
 	sys.exit("No timeSeries analysis possible")
 else:
@@ -123,5 +126,6 @@ else:
 
 	resampledDataFramePeriodQ.to_csv('./final/timeseries/'+output+'periodQ.csv', encoding='utf-8-sig')
 	resampledDataFramePeriodM.to_csv('./final/timeseries/'+output+'periodM.csv', encoding='utf-8-sig')
-	resampledDataFramePeriodQ.to_json('./final/timeseries/'+output+'periodQ.json', orient="index")
-	resampledDataFramePeriodM.to_json('./final/timeseries/'+output+'periodM.json', orient="index")
+	# Issue https://github.com/pandas-dev/pandas/issues/16492
+	resampledDataFramePeriodQ.to_json('./final/timeseries/'+output+'periodQ.json', orient="index", date_format='iso')
+	resampledDataFramePeriodM.to_json('./final/timeseries/'+output+'periodM.json', orient="index", date_format='iso')
