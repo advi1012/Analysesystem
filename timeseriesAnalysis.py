@@ -41,8 +41,6 @@ def resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df,
 
     resampledDataFramePeriod = df.resample(period).agg(aggregation_spec_sum_avg)
 
-    print(resampledDataFramePeriod)
-    print(resampledDataFramePeriod.columns)
 
 # detect Outliers. IQR formula
 

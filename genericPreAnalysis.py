@@ -6,8 +6,11 @@ import datetime
 import json
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
 from pandas.api.types import is_categorical_dtype as is_categorical
+from pandas.api.types import is_string_dtype
+from pandas.api.types import is_numeric_dtype
 import regex
 import re
+from locale import atof, setlocale, LC_NUMERIC
 
 
 
@@ -130,12 +133,36 @@ class GenericPreAnalysis:
 			# to_numeric can not convert columns from Datatype float64
 			return self.dataframe.apply(lambda s: pd.to_numeric(s,errors='coerce').notnull().all())
 
-	"""
-	def isCoordinateCandidate(self, column_names):
+	
+	def isCoordinateCandidate(self, column_names, dataListCoordinatesCandidat):
 		for idx, item in enumerate(column_names):
-			if ',' in 
-	"""
+			
+			if (item == 'Latitude'):
+				dataListCoordinatesCandidat.append("Y")
+				continue
+			if (item == 'Longitude'):
+				dataListCoordinatesCandidat.append("X")
+				continue
+			else:
+				dataListCoordinatesCandidat.append("None")
 
+			# if self.dataframe[item].apply(lambda x:astype(str).str.match("^\d+[,.]\d+$").all():
+			# 	
+			# 	new_df = self.dataframe[column_names].copy()
+			# 	new_df[item] = new_df[item].astype(str).str.replace(',','.').all()
+			# 	new_df[item] = pd.to_numeric(new_df[item], downcast="float")
+
+			# 	
+
+			# 	if new_df[item].between(-90, 90,inclusive=True).all():
+			# 		dataListCoordinatesCandidat.append("Y")
+			# 	elif new_df[item].between(-180, 180,inclusive=True).all():
+			# 		dataListCoordinatesCandidat.append("X")
+			# 	else:
+			# 		dataListCoordinatesCandidat.append("None")
+			# else:
+			# 	dataListCoordinatesCandidat.append("None")
+	
 
 	def setDatatype(self,column_names, dataListDatatype):
 		for idx, item in enumerate(column_names):

@@ -10,6 +10,10 @@ from timeseriesAnalysis import preparetimeSeriesAnalysis
 from timeseriesAnalysis import resampleByPeriodAll
 from timeseriesAnalysis import resampleByPeriodOnce
 from enrich import Enrich
+from locale import atof, setlocale, LC_ALL
+
+setlocale(LC_ALL, 'deu_deu')
+#print(atof('123,456'))
 
 
 #Read Data
@@ -17,9 +21,6 @@ input = "input_Rossmann_data"
 df = pd.read_csv(input+'.csv', sep=';')
 #df = pd.read_csv('fz28_2021_04_edited.csv', sep=';')
 column_names = df.columns.tolist()
-
-
-
 
 """
  First collect data with list. Eather List-of-Lists or lists-of-dict. Create DataFrame when ready. Due to computationally intensitivity.
@@ -66,6 +67,7 @@ dataList_is_numeric = genericPreAnalysis.isNumericColumn(column_names)
 
 # Check coordinates
 
+genericPreAnalysis.isCoordinateCandidate(column_names, dataListCoordinatesCandidat)
 
 # Run set Datatype after function call is_CategorialColumn
 genericPreAnalysis.setDatatype(column_names, dataListDatatype)
@@ -102,6 +104,7 @@ dffinalmetadata = {column_names_metadata[0]: dataListDatatype,
 		column_names_metadata[4]: dataListDateFormat,
         column_names_metadata[5]:dataList_is_category,
         column_names_metadata[6]:dataListCurrencyUnit,
+		column_names_metadata[7]:dataListCoordinatesCandidat,
         'attributs':column_names}
 dffinalmetadata = pd.DataFrame(dffinalmetadata)
 dffinalmetadata.set_index("attributs", inplace =True)
@@ -110,7 +113,6 @@ enricher = Enrich()
 dffinalmetadata = enricher.enrich(dffinalmetadata)
 
 output = input.replace('input', 'output')
-print(output)
 dffinalmetadata.to_csv('./final/'+output+'_Metadata'+'.csv', encoding='utf-8-sig')
 dffinalmetadata.to_json('./final/'+output+'_Metadata'+'.json', orient="index")
 
