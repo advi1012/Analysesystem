@@ -125,6 +125,11 @@ else:
 	resampledDataFramePeriodQ = resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df, period = 'Q')
 	resampledDataFramePeriodM = resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df, period = 'M')
 
+	if "Sales" in column_names:
+		resampledDataFramePeriodQAggregated = resampleByPeriodOnce(resampledDataFramePeriodQ, period="Q")
+		resampledDataFramePeriodQAggregated.to_csv('./final/timeseries/'+output+'SumSalesperiodQ.csv', encoding='utf-8-sig')
+		resampledDataFramePeriodQAggregated.to_json('./final/timeseries/'+output+'SumSalesperiodQ.json', orient="index", date_format='iso')
+
 
 	resampledDataFramePeriodQ.to_csv('./final/timeseries/'+output+'periodQ.csv', encoding='utf-8-sig')
 	resampledDataFramePeriodM.to_csv('./final/timeseries/'+output+'periodM.csv', encoding='utf-8-sig')

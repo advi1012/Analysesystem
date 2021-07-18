@@ -77,4 +77,29 @@ def resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df,
 
 def resampleByPeriodOnce(resampledDataFramePeriod, period="Q" ):
     # Sum or aggregate all from same period along the years. 2013-2014 All. 2015 till end of Juli. Check if whole year is covered.
-    return ""
+
+    new_df = resampledDataFramePeriod["Sales"].copy()
+    new_dfSumSales = new_df['sum']
+    new_dfSumSales = new_dfSumSales.to_frame(name="Sales")
+    #new_dfSumSales.rename(columns={'sum':'Sales'})
+    print(type(new_dfSumSales))
+
+    df = new_dfSumSales
+    print(df)
+    df1=df[(df.index.month==3)]
+    print(df1)
+    df1  = df1.agg(Q1Sum=('Sales', sum))
+    df2=df[(df.index.month==6)]
+    df2  = df2.agg(Q2Sum=('Sales', sum))
+    print(df2)
+    df3=df[(df.index.month==9)]
+    df3  = df3.agg(Q3Sum=('Sales', sum))
+    print(df3)
+    df4=df[(df.index.month==12)]
+    df4  = df4.agg(Q4Sum=('Sales', sum))
+
+
+    result = df1.append(df2).append(df3).append(df4)
+    print(result)
+
+    return result
