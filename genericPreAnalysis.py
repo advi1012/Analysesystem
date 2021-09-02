@@ -29,7 +29,6 @@ class GenericPreAnalysis:
 					# Method pd.to_datetime returns datetime64[ns]. Required for resampling a TimeSeries
 					self.dataframe[itemColumn_Names] = pd.to_datetime(self.dataframe[itemColumn_Names])
 					#if itemColumn_Names == "Date" and self.dataframe[itemColumn_Names].dtype == "datetime64[ns]":
-					#	print("HiDate")
 					dataList_is_category.append(True)
 					continue
 				if itemCurrency in listOfCurrencys:
@@ -127,6 +126,12 @@ class GenericPreAnalysis:
 		for idx, item in enumerate(column_names):
 			if self.dataframe[item].isnull().values.any():
 				new_df = self.dataframe[self.dataframe[item].notna()]
+		print(self.dataframe[item].loc[~self.dataframe[item].isnull()].iloc[0])
+		if re.match(r"^\d+[,.]\d+$",self.dataframe[item].loc[~self.dataframe[item].isnull()].iloc[0]):
+			return True
+
+		#if self.dataframe[item].loc[~self.dataframe[item].isnull()].iloc[0] in "^\d+[,.]\d+$":
+		#	return True
 		if self.dataframe[item].isnull().values.any():
 			return new_df.apply(lambda s: pd.to_numeric(s,errors='coerce').notnull().all())
 		else:
@@ -206,8 +211,22 @@ class GenericPreAnalysis:
 				resultListOfCurrencys = listOfCurrencys
 		return resultListOfCurrencys
 
+	def hasMissingValues(self, column_names, dataListMissingValues):
+		# if check for null values is successfull Sales will be Numeric
+		for idx, item in enumerate(column_names):
+			if self.dataframe[item].isnull().values.any():
+				dataListMissingValues.append(True)
+			else:
+				dataListMissingValues.append(False)
 
 
+	def isState(self, column_names, dataListIsState):
+		# if check for null values is successfull Sales will be Numeric
+		for idx, item in enumerate(column_names):
+			if (item == 'State'):
+				dataListIsState.append(True)
+			else:
+				dataListIsState.append(False)
 
 
 

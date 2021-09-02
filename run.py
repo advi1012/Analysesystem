@@ -11,15 +11,25 @@ from timeseriesAnalysis import resampleByPeriodAll
 from timeseriesAnalysis import resampleByPeriodOnce
 from enrich import Enrich
 from locale import atof, setlocale, LC_ALL
+import time
+
+start = time.time()
+print("hello")
+
 
 setlocale(LC_ALL, 'deu_deu')
 #print(atof('123,456'))
 
 
 #Read Data
-input = "input_Rossmann_data"
-df = pd.read_csv(input+'.csv', sep=';')
+inputTest = "Test"
+inputBig = "input_Rossmann_data"
+inputMiddle = "input_Rossmann_data_Evaluation_10000"
+inputSmall = "input_Rossmann_data_Evaluation_1000"
+
+#df = pd.read_csv('C:/Users/vincent.adam/Desktop/Thesis_Projects/Pandas/Analysemodul/input_Rossmann_data_Evaluation_10000.csv', sep=';')
 #df = pd.read_csv('fz28_2021_04_edited.csv', sep=';')
+df = pd.read_csv(inputBig+'.csv', sep=';')
 column_names = df.columns.tolist()
 
 """
@@ -39,7 +49,9 @@ dataListDateFormat = []
 dataList_is_category = []
 dataListCurrencyUnit = []
 dataListCoordinatesCandidat = []
-column_names_metadata=['Datatype', 'is_numeric', 'is_relativeNumber','is_date', 'DateFormat','is_categoricalColumn', 'currencyUnit', 'coordinatesCandidat']
+dataListMissingValues = []
+dataListIsState = []
+column_names_metadata=['Datatype', 'is_numeric', 'is_relativeNumber','is_date', 'DateFormat','is_categoricalColumn', 'currencyUnit', 'coordinatesCandidat', 'missingValues', 'isState']
 
 
 genericPreAnalysis = GenericPreAnalysis(df)
@@ -75,6 +87,12 @@ genericPreAnalysis.setDatatype(column_names, dataListDatatype)
 #Check relative Number must be between 0 and 1
 genericPreAnalysis.isRelativeNumberOnlyFloat(column_names, dataList_is_relativeNumber, dataListDatatype)
 
+# Check missing Values
+
+genericPreAnalysis.hasMissingValues(column_names, dataListMissingValues)
+
+genericPreAnalysis.isState(column_names, dataListIsState)
+
 # for evaluation of Pandas Software
 dataList_is_date_pandas_YMD = genericPreAnalysis.isDateColumn(format='%Y-%m-%d').tolist()
 dataList_is_date_pandas_MDY = genericPreAnalysis.isDateColumn(format='%m-%d-%Y').tolist()
@@ -93,7 +111,7 @@ dfevaluation = {"is_mistake_YMD": dataList_is_mistake_pandas_to_datetime_YMD,
 dfevaluation = pd.DataFrame(dfevaluation)
 dfevaluation.set_index("attributs", inplace =True)
 
-dfevaluation.to_csv('./final/evaluation_Pandas_Rossmann.csv', encoding='utf-8-sig')
+dfevaluation.to_csv('C:/Users/vincent.adam/Desktop/Thesis_Projects/Pandas/Analysemodul/final/evaluation_Pandas_Rossmann.csv', encoding='utf-8-sig')
 
 # Use dataList_is_date_regex for valid dates. 
 
@@ -105,6 +123,8 @@ dffinalmetadata = {column_names_metadata[0]: dataListDatatype,
         column_names_metadata[5]:dataList_is_category,
         column_names_metadata[6]:dataListCurrencyUnit,
 		column_names_metadata[7]:dataListCoordinatesCandidat,
+        column_names_metadata[8]:dataListMissingValues,
+        column_names_metadata[9]:dataListIsState,
         'attributs':column_names}
 dffinalmetadata = pd.DataFrame(dffinalmetadata)
 dffinalmetadata.set_index("attributs", inplace =True)
@@ -112,27 +132,30 @@ dffinalmetadata.set_index("attributs", inplace =True)
 enricher = Enrich()
 dffinalmetadata = enricher.enrich(dffinalmetadata)
 
-output = input.replace('input', 'output')
-dffinalmetadata.to_csv('./final/'+output+'_Metadata'+'.csv', encoding='utf-8-sig')
-dffinalmetadata.to_json('./final/'+output+'_Metadata'+'.json', orient="index")
-
-aggregation_spec_sum_avg, candidatsAggregationNames = preparetimeSeriesAnalysis(dffinalmetadata, df)
-
-
-if not aggregation_spec_sum_avg or not candidatsAggregationNames:
-	sys.exit("No timeSeries analysis possible")
-else:
-	resampledDataFramePeriodQ = resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df, period = 'Q')
-	resampledDataFramePeriodM = resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df, period = 'M')
-
-	if "Sales" in column_names:
-		resampledDataFramePeriodQAggregated = resampleByPeriodOnce(resampledDataFramePeriodQ, period="Q")
-		resampledDataFramePeriodQAggregated.to_csv('./final/timeseries/'+output+'SumSalesperiodQ.csv', encoding='utf-8-sig')
-		resampledDataFramePeriodQAggregated.to_json('./final/timeseries/'+output+'SumSalesperiodQ.json', orient="index", date_format='iso')
+output = inputBig.replace('input', 'output')
+dffinalmetadata.to_csv('C:/Users/vincent.adam/Desktop/Thesis_Projects/Pandas/Analysemodul/final/'+output+'_Metadata_NumericCommaPoint'+'.csv', encoding='utf-8-sig')
+dffinalmetadata.to_json('C:/Users/vincent.adam/Desktop/Thesis_Projects/Pandas/Analysemodul/final/'+output+'_Metadata_NumericCommaPoint'+'.json', orient="index")
+end = time.time()
+print(end - start)
 
 
-	resampledDataFramePeriodQ.to_csv('./final/timeseries/'+output+'periodQ.csv', encoding='utf-8-sig')
-	resampledDataFramePeriodM.to_csv('./final/timeseries/'+output+'periodM.csv', encoding='utf-8-sig')
-	# Issue https://github.com/pandas-dev/pandas/issues/16492
-	resampledDataFramePeriodQ.to_json('./final/timeseries/'+output+'periodQ.json', orient="index", date_format='iso')
-	resampledDataFramePeriodM.to_json('./final/timeseries/'+output+'periodM.json', orient="index", date_format='iso')
+# aggregation_spec_sum_avg, candidatsAggregationNames = preparetimeSeriesAnalysis(dffinalmetadata, df)
+
+
+# if not aggregation_spec_sum_avg or not candidatsAggregationNames:
+# 	sys.exit("No timeSeries analysis possible")
+# else:
+# 	resampledDataFramePeriodQ = resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df, period = 'Q')
+# 	resampledDataFramePeriodM = resampleByPeriodAll(aggregation_spec_sum_avg, candidatsAggregationNames, df, period = 'M')
+
+# 	if "Sales" in column_names:
+# 		resampledDataFramePeriodQAggregated = resampleByPeriodOnce(resampledDataFramePeriodQ, period="Q")
+# 		resampledDataFramePeriodQAggregated.to_csv('./final/timeseries/'+output+'SumSalesperiodQ.csv', encoding='utf-8-sig')
+# 		resampledDataFramePeriodQAggregated.to_json('./final/timeseries/'+output+'SumSalesperiodQ.json', orient="index", date_format='iso')
+
+
+# 	resampledDataFramePeriodQ.to_csv('./final/timeseries/'+output+'periodQ.csv', encoding='utf-8-sig')
+# 	resampledDataFramePeriodM.to_csv('./final/timeseries/'+output+'periodM.csv', encoding='utf-8-sig')
+# 	# Issue https://github.com/pandas-dev/pandas/issues/16492
+# 	resampledDataFramePeriodQ.to_json('./final/timeseries/'+output+'periodQ.json', orient="index", date_format='iso')
+# 	resampledDataFramePeriodM.to_json('./final/timeseries/'+output+'periodM.json', orient="index", date_format='iso')
